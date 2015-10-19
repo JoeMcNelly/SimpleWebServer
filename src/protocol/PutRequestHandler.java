@@ -65,10 +65,13 @@ public class PutRequestHandler implements IRequestHandler {
 				}
 			}
 		}
-		
+		else{
+			response = HttpResponseFactory.create200OK(file, Protocol.CLOSE);
+		}
 		try {
 			file.createNewFile();
-			FileOutputStream writer = new FileOutputStream(file, false);
+			File newFile = new File(rootDir + uri);
+			FileOutputStream writer = new FileOutputStream(newFile, false);
 			String contents = new String(request.getBody());
 			writer.write(contents.getBytes());
 			writer.close();

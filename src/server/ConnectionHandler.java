@@ -151,6 +151,8 @@ public class ConnectionHandler implements Runnable {
 				// "request.version" string ignoring the case of the letters in both strings
 				// TODO: Fill in the rest of the code here
 			}
+			
+			
 			IRequestHandler requestHandler = requestMap.get(request.getMethod());
 			response = requestHandler.handleRequest(request, server.getRootDirectory());
 
