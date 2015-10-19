@@ -25,21 +25,57 @@
  * NY 13699-5722
  * http://clarkson.edu/~rupakhcr
  */
- 
+
 package protocol;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class PostRequestHandler implements IRequestHandler{
-	/* (non-Javadoc)
-	 * @see protocol.IRequestHandler#handleRequest(protocol.HttpRequest, java.lang.String)
+public class PostRequestHandler implements IRequestHandler {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see protocol.IRequestHandler#handleRequest(protocol.HttpRequest,
+	 * java.lang.String)
 	 */
 	@Override
 	public HttpResponse handleRequest(HttpRequest request, String rootDir) {
-		// TODO Auto-generated method stub
-		return null;
+		HttpResponse response = null;
+		String uri = request.getUri();
+
+		File file = new File(rootDir + uri);
+
+		if (file.exists()) {
+			if (file.isDirectory()) {
+				response = HttpResponseFactory
+						.create400BadRequest(Protocol.CLOSE);
+			} else {
+				response = appendToFile(request.getBody().toString(), file);
+			}
+		} else {
+			response = appendToFile(request.getBody().toString(), file);
+		}
+		return response;
 	}
 
+	public HttpResponse appendToFile(String body, File file) {
+		try {
+			FileOutputStream outputStream = new FileOutputStream(file, true);
+			outputStream.write(body.getBytes());
+			outputStream.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return HttpResponseFactory.create200OK(file, Protocol.CLOSE);
+	}
 }
