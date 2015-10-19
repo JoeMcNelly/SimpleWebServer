@@ -28,6 +28,8 @@
  
 package protocol;
 
+import java.io.File;
+
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
@@ -39,8 +41,30 @@ public class DeleteRequestHandler implements IRequestHandler{
 	 */
 	@Override
 	public HttpResponse handleRequest(HttpRequest request, String rootDir) {
+
+		HttpResponse response = null;
+		
 		// TODO Auto-generated method stub
-		return null;
+		String uri = request.getUri();
+		// Get root directory path from server
+		// Combine them together to form absolute file path
+		File file = new File(rootDir + uri);
+		// Check if the file exists
+		if(file.exists()) {
+			if(file.isDirectory()) {
+				response = HttpResponseFactory.create404NotFound(Protocol.CLOSE);
+			}
+			else { // Its a file
+				// Lets create 200 OK response
+				file.delete();
+				response = HttpResponseFactory.create200OK(null, Protocol.CLOSE);
+			}
+		}
+		else {
+			// File does not exist so lets create 404 file not found code
+			response = HttpResponseFactory.create404NotFound(Protocol.CLOSE);
+		}
+		return response;
 	}
 
 }
