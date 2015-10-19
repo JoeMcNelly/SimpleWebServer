@@ -53,27 +53,23 @@ public class PostRequestHandler implements IRequestHandler {
 
 		if (file.exists()) {
 			if (file.isDirectory()) {
-				response = HttpResponseFactory
-						.create400BadRequest(Protocol.CLOSE);
+				response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
 			} else {
-				response = appendToFile(request.getBody().toString(), file);
+				response = appendToFile(new String(request.getBody()), file);
 			}
 		} else {
-			response = appendToFile(request.getBody().toString(), file);
+			response = appendToFile(new String(request.getBody()), file);
 		}
 		return response;
 	}
 
 	public HttpResponse appendToFile(String body, File file) {
 		try {
-			FileOutputStream outputStream = new FileOutputStream(file, true);
-			outputStream.write(body.getBytes());
-			outputStream.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			FileOutputStream writer = new FileOutputStream(file, true);
+			String contents = new String(body);
+			writer.write(contents.getBytes());
+			writer.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return HttpResponseFactory.create200OK(file, Protocol.CLOSE);
