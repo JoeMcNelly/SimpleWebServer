@@ -65,13 +65,10 @@ public class PutRequestHandler implements IRequestHandler {
 				}
 			}
 		}
-		else {
-			response = HttpResponseFactory.create404NotFound(Protocol.CLOSE);
-		}
 		
 		try {
 			file.createNewFile();
-			FileOutputStream writer = new FileOutputStream(file, true);
+			FileOutputStream writer = new FileOutputStream(file, false);
 			String contents = new String(request.getBody());
 			writer.write(contents.getBytes());
 			writer.close();
