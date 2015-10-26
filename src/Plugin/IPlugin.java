@@ -28,12 +28,17 @@
  
 package Plugin;
 
-import Servlet.IServlet;
+import protocol.HttpRequest;
+import protocol.HttpResponse;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
 public interface IPlugin {
-	public IServlet getServlet(String rurl);
+	/**
+	 * @param request
+	 * @return
+	 */
+	public HttpResponse handle(HttpRequest request, String rootDir);
 }

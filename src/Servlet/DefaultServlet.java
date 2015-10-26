@@ -33,6 +33,9 @@ import java.util.Map;
 
 import protocol.DeleteRequestHandler;
 import protocol.GetRequestHandler;
+import protocol.HttpRequest;
+import protocol.HttpResponse;
+import protocol.HttpResponseFactory;
 import protocol.IRequestHandler;
 import protocol.PostRequestHandler;
 import protocol.Protocol;
@@ -53,15 +56,20 @@ public class DefaultServlet implements IServlet{
 		handlers.put(Protocol.PUT, new PutRequestHandler());
 		handlers.put(Protocol.DELETE, new DeleteRequestHandler());
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see Servlet.IServlet#handle(protocol.HttpRequest, java.lang.String)
+	 */
 	@Override
-	public IRequestHandler getHandler(String requestType) {
+	public HttpResponse handle(HttpRequest request, String rootDir) {
 		try{
-			return handlers.get(requestType);
-		} catch( Exception e ) {
-			e.printStackTrace();
-			return null;
+			return handlers.get(request.getMethod()).handleRequest(request, rootDir);
+		}catch(Exception e){
+			return HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
 		}
 	}
+
+	
+	
 
 }

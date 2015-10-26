@@ -154,12 +154,10 @@ public class ConnectionHandler implements Runnable {
 				// TODO: Fill in the rest of the code here
 			}
 			String[] URIparts = request.getUri().split("/");
-			String URI = URIparts[0];
-			String relativeURI = URIparts[1];
+			String URI = URIparts[1];
+			String relativeURI = URIparts[2];
 			IPlugin plugin = this.server.getPlugin(URI);
-			IServlet servlet = plugin.getServlet(relativeURI);
-			IRequestHandler requestHandler = servlet.getHandler(request.getMethod());
-			response = requestHandler.handleRequest(request, server.getRootDirectory());
+			response = plugin.handle(request,this.server.getRootDirectory());
 
 		}
 		catch(Exception e) {

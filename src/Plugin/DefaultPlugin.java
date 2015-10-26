@@ -31,6 +31,8 @@ package Plugin;
 import java.util.HashMap;
 import java.util.Map;
 
+import protocol.HttpRequest;
+import protocol.HttpResponse;
 import Servlet.DefaultServlet;
 import Servlet.IServlet;
 
@@ -46,14 +48,16 @@ public class DefaultPlugin implements IPlugin{
 		servlets = new HashMap<String, IServlet>();
 		servlets.put("MyServlet", new DefaultServlet());
 	}
+
+	/* (non-Javadoc)
+	 * @see Plugin.IPlugin#handle(protocol.HttpRequest)
+	 */
 	@Override
-	public IServlet getServlet(String rurl) {
-		try {
-			return servlets.get(rurl);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+	public HttpResponse handle(HttpRequest request, String rootDir) {
+		String uri = request.getUri();
+		String[] splitURI = uri.split("/");
+		return servlets.get(splitURI[2]).handle(request,rootDir);
 	}
+	
 
 }

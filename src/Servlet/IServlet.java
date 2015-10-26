@@ -28,14 +28,15 @@
  
 package Servlet;
 
-import protocol.IRequestHandler;
+import protocol.HttpRequest;
+import protocol.HttpResponse;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
 public interface IServlet {
-	public IRequestHandler getHandler(String requestType);
+	public HttpResponse handle(HttpRequest request,String rootDir);
 	
 
 }
