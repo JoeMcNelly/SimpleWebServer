@@ -11,7 +11,6 @@ import java.nio.file.WatchService;
 
 public class DirectoryWatcher implements Runnable {
 
-	private ListingPanel listPanel = ListingPanel.getInstance();
 
 	public void startTimer() throws IOException, InterruptedException {
 		Path faxFolder = Paths.get("./plugins");
@@ -27,12 +26,12 @@ public class DirectoryWatcher implements Runnable {
 				if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
 					String fileName = event.context().toString();
 					System.out.println("File Created:" + fileName);
-					listPanel.addToListPanel(fileName);
+				
 				}
 				if (StandardWatchEventKinds.ENTRY_DELETE.equals(event.kind())) {
 					String fileName = event.context().toString();
 					System.out.println("File Removed: " + fileName);
-					listPanel.removeFromListPanel(fileName);
+				
 				}
 
 			}
