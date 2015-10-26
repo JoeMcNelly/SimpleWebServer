@@ -21,24 +21,18 @@
  
 package server;
 
+import jarloader.JarLoader;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 
 import Plugin.IPlugin;
-import Servlet.IServlet;
-import protocol.DeleteRequestHandler;
-import protocol.GetRequestHandler;
 import protocol.HttpRequest;
 import protocol.HttpResponse;
 import protocol.HttpResponseFactory;
-import protocol.IRequestHandler;
-import protocol.PostRequestHandler;
 import protocol.Protocol;
 import protocol.ProtocolException;
-import protocol.PutRequestHandler;
 
 /**
  * This class is responsible for handling a incoming request
@@ -155,9 +149,24 @@ public class ConnectionHandler implements Runnable {
 			}
 			String[] URIparts = request.getUri().split("/");
 			String URI = URIparts[1];
-			String relativeURI = URIparts[2];
-			IPlugin plugin = this.server.getPlugin(URI);
-			response = plugin.handle(request,this.server.getRootDirectory());
+//			String relativeURI = URIparts[2];
+//			IPlugin plugin = this.server.getPlugin(URI);
+			JarLoader loader = new JarLoader("./web/"+URI+".jar");
+			Class clazz;
+			try {
+				clazz = loader.loadClass(URI,true);
+				Object o = clazz.newInstance();
+				if(o instanceof IPlugin){
+					IPlugin pluginClass = (IPlugin) o;
+					response = ((IPlugin) o).handle(request, this.server.getRootDirectory());
+					
+				}
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e1) {
+				e1.printStackTrace();
+			}
+			
+			
+//			response = plugin.handle(request,this.server.getRootDirectory());
 
 		}
 		catch(Exception e) {
