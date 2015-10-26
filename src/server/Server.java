@@ -26,6 +26,11 @@ import gui.WebServer;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
+
+import Plugin.DefaultPlugin;
+import Plugin.IPlugin;
 
 /**
  * This represents a welcoming server for the incoming
@@ -43,6 +48,8 @@ public class Server implements Runnable {
 	private long serviceTime;
 	
 	private WebServer window;
+	
+	private Map<String, IPlugin> plugins;
 	/**
 	 * @param rootDirectory
 	 * @param port
@@ -54,6 +61,17 @@ public class Server implements Runnable {
 		this.connections = 0;
 		this.serviceTime = 0;
 		this.window = window;
+		this.plugins = new HashMap<String, IPlugin>();
+		this.plugins.put("MyPlugin", new DefaultPlugin());
+	}
+	
+	public IPlugin getPlugin(String URI) {
+		try{
+			return plugins.get(URI);
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/**

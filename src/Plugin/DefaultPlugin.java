@@ -1,6 +1,6 @@
 /*
- * IPlugins.java
- * Oct 25, 2015
+ * DefaultPlugin.java
+ * Oct 26, 2015
  *
  * Simple Web Server (SWS) for EE407/507 and CS455/555
  * 
@@ -26,14 +26,34 @@
  * http://clarkson.edu/~rupakhcr
  */
  
-package Plugins;
+package Plugin;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import Servlet.DefaultServlet;
 import Servlet.IServlet;
 
 /**
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public interface IPlugins {
-	public IServlet getServlet(String rurl);
+public class DefaultPlugin implements IPlugin{
+
+	private Map<String, IServlet> servlets;
+	
+	public DefaultPlugin() {
+		servlets = new HashMap<String, IServlet>();
+		servlets.put("MyServlet", new DefaultServlet());
+	}
+	@Override
+	public IServlet getServlet(String rurl) {
+		try {
+			return servlets.get(rurl);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 }

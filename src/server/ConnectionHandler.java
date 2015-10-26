@@ -27,6 +27,8 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import Plugin.IPlugin;
+import Servlet.IServlet;
 import protocol.DeleteRequestHandler;
 import protocol.GetRequestHandler;
 import protocol.HttpRequest;
@@ -49,15 +51,15 @@ import protocol.PutRequestHandler;
 public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
-	private Map<String,IRequestHandler> requestMap = new HashMap<String, IRequestHandler>();
+	//private Map<String,IRequestHandler> requestMap = new HashMap<String, IRequestHandler>();
 	
 	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
-		this.requestMap.put(Protocol.GET, new GetRequestHandler());
-		this.requestMap.put(Protocol.POST, new PostRequestHandler());
-		this.requestMap.put(Protocol.PUT, new PutRequestHandler());
-		this.requestMap.put(Protocol.DELETE, new DeleteRequestHandler());
+		//this.requestMap.put(Protocol.GET, new GetRequestHandler());
+		//this.requestMap.put(Protocol.POST, new PostRequestHandler());
+		//this.requestMap.put(Protocol.PUT, new PutRequestHandler());
+		//this.requestMap.put(Protocol.DELETE, new DeleteRequestHandler());
 	}
 	
 	/**
@@ -151,14 +153,18 @@ public class ConnectionHandler implements Runnable {
 				// "request.version" string ignoring the case of the letters in both strings
 				// TODO: Fill in the rest of the code here
 			}
-			
-			
-			IRequestHandler requestHandler = requestMap.get(request.getMethod());
+			String[] URIparts = request.getUri().split("/");
+			String URI = URIparts[0];
+			String relativeURI = URIparts[1];
+			IPlugin plugin = this.server.getPlugin(URI);
+			IServlet servlet = plugin.getServlet(relativeURI);
+			IRequestHandler requestHandler = servlet.getHandler(request.getMethod());
 			response = requestHandler.handleRequest(request, server.getRootDirectory());
 
 		}
 		catch(Exception e) {
 			e.printStackTrace();
+			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
 		}
 		
 
