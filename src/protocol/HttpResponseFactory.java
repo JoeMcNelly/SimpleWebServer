@@ -45,7 +45,8 @@ public class HttpResponseFactory {
 	 *            Supported values are {@link Protocol#OPEN} and
 	 *            {@link Protocol#CLOSE}.
 	 */
-	private static void fillGeneralHeader(HttpResponse response, String connection) {
+	private static void fillGeneralHeader(HttpResponse response,
+			String connection) {
 		// Lets add Connection header
 		response.put(Protocol.CONNECTION, connection);
 
@@ -72,7 +73,8 @@ public class HttpResponseFactory {
 	 * @return A {@link HttpResponse} object represent 200 status.
 	 */
 	public static HttpResponse create200OK(File file, String connection) {
-		HttpResponse response = new HttpResponse(Protocol.VERSION, Protocol.OK_CODE, Protocol.OK_TEXT,
+		HttpResponse response = new HttpResponse(Protocol.VERSION,
+				Protocol.OK_CODE, Protocol.OK_TEXT,
 				new HashMap<String, String>(), file);
 
 		// Lets fill up header fields with more information
@@ -113,12 +115,43 @@ public class HttpResponseFactory {
 	 * @return A {@link HttpResponse} object represent 400 status.
 	 */
 	public static HttpResponse create400BadRequest(String connection) {
-		HttpResponse response = new HttpResponse(Protocol.VERSION, Protocol.BAD_REQUEST_CODE, Protocol.BAD_REQUEST_TEXT,
+		//finding the 400 message file
+		String dir = System.getProperty("user.dir");
+		File file = new File(dir + System.getProperty("file.separator") + "web"
+				+ System.getProperty("file.separator") + "400message.txt"
+				+ System.getProperty("file.separator"));
+		//creating the response		
+		HttpResponse response = new HttpResponse(Protocol.VERSION,
+				Protocol.BAD_REQUEST_CODE, Protocol.BAD_REQUEST_TEXT,
 				new HashMap<String, String>(), null);
 
 		// Lets fill up header fields with more information
 		fillGeneralHeader(response, connection);
+		
+		if (file != null) {
+			// Lets add last modified date for the file
+			long timeSinceEpoch = file.lastModified();
+			Date modifiedTime = new Date(timeSinceEpoch);
+			response.put(Protocol.LAST_MODIFIED, modifiedTime.toString());
 
+			// Lets get content length in bytes
+			long length = file.length();
+			response.put(Protocol.CONTENT_LENGTH, length + "");
+
+			// Lets get MIME type for the file
+			FileNameMap fileNameMap = URLConnection.getFileNameMap();
+			String mime = fileNameMap.getContentTypeFor(file.getName());
+			// The fileNameMap cannot find mime type for all of the documents,
+			// e.g. doc, odt, etc.
+			// So we will not add this field if we cannot figure out what a mime
+			// type is for the file.
+			// Let browser do this job by itself.
+			if (mime != null) {
+				response.put(Protocol.CONTENT_TYPE, mime);
+			}
+		}
+		
+		
 		return response;
 	}
 
@@ -131,12 +164,42 @@ public class HttpResponseFactory {
 	 * @return A {@link HttpResponse} object represent 404 status.
 	 */
 	public static HttpResponse create404NotFound(String connection) {
-		HttpResponse response = new HttpResponse(Protocol.VERSION, Protocol.NOT_FOUND_CODE, Protocol.NOT_FOUND_TEXT,
-				new HashMap<String, String>(), null);
+		String dir = System.getProperty("user.dir");
+		File file = new File(dir + System.getProperty("file.separator") + "web"
+				+ System.getProperty("file.separator") + "404message.txt"
+				+ System.getProperty("file.separator"));
+		System.out.println(file.getAbsolutePath());
+		
+		HttpResponse response = new HttpResponse(Protocol.VERSION,
+				Protocol.NOT_FOUND_CODE, Protocol.NOT_FOUND_TEXT,
+				new HashMap<String, String>(), file);
 
 		// Lets fill up the header fields with more information
 		fillGeneralHeader(response, connection);
 
+		if (file != null) {
+			// Lets add last modified date for the file
+			long timeSinceEpoch = file.lastModified();
+			Date modifiedTime = new Date(timeSinceEpoch);
+			response.put(Protocol.LAST_MODIFIED, modifiedTime.toString());
+
+			// Lets get content length in bytes
+			long length = file.length();
+			response.put(Protocol.CONTENT_LENGTH, length + "");
+
+			// Lets get MIME type for the file
+			FileNameMap fileNameMap = URLConnection.getFileNameMap();
+			String mime = fileNameMap.getContentTypeFor(file.getName());
+			// The fileNameMap cannot find mime type for all of the documents,
+			// e.g. doc, odt, etc.
+			// So we will not add this field if we cannot figure out what a mime
+			// type is for the file.
+			// Let browser do this job by itself.
+			if (mime != null) {
+				response.put(Protocol.CONTENT_TYPE, mime);
+			}
+		}
+		
 		return response;
 	}
 
