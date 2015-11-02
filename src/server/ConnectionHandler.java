@@ -21,25 +21,16 @@
 
 package server;
 
-import jarloader.JarLoader;
-
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 
-import protocol.DeleteRequestHandler;
-import protocol.GetRequestHandler;
 import protocol.HttpRequest;
 import protocol.HttpResponse;
 import protocol.HttpResponseFactory;
 import protocol.IRequestHandler;
-import protocol.PostRequestHandler;
 import protocol.Protocol;
 import protocol.ProtocolException;
-import protocol.PutRequestHandler;
 import Plugin.IPlugin;
 
 /**

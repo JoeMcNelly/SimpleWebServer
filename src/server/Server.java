@@ -24,19 +24,22 @@ package server;
 import gui.WebServer;
 import jarloader.DirectoryWatcher;
 import jarloader.JarLoader;
-import protocol.DeleteRequestHandler;
-import protocol.GetRequestHandler;
-import protocol.IRequestHandler;
-import protocol.PostRequestHandler;
-import protocol.Protocol;
-import protocol.PutRequestHandler;
 
 import java.io.File;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
+
+import protocol.DeleteRequestHandler;
+import protocol.GetRequestHandler;
+import protocol.IRequestHandler;
+import protocol.PostRequestHandler;
+import protocol.Protocol;
+import protocol.PutRequestHandler;
 import Plugin.IPlugin;
 
 /**
@@ -58,6 +61,7 @@ public class Server implements Runnable {
 	
 	private Map<String, IPlugin> plugins;
 	private Map<String, IRequestHandler> requestMap;
+	private Queue<ConnectionHandler> handlers;
 	/**
 	 * @param rootDirectory
 	 * @param port
@@ -75,6 +79,7 @@ public class Server implements Runnable {
 		this.requestMap.put(Protocol.POST, new PostRequestHandler());
 		this.requestMap.put(Protocol.PUT, new PutRequestHandler());
 		this.requestMap.put(Protocol.DELETE, new DeleteRequestHandler());
+		this.handlers  = new LinkedList<ConnectionHandler>();
 		this.watcher = new DirectoryWatcher(this);
 		Thread t = new Thread(this.watcher);
 		t.start();
@@ -172,8 +177,10 @@ public class Server implements Runnable {
 					break;
 				
 				// Create a handler for this incoming connection and start the handler in a new thread
-				ConnectionHandler handler = new ConnectionHandler(this, connectionSocket);
-				new Thread(handler).start();
+//				ConnectionHandler handler = new ConnectionHandler(this, connectionSocket);
+//				new Thread(handler).start();
+				this.handlers.add(new ConnectionHandler(this,connectionSocket));
+				new Thread(this.handlers.poll()).start();
 			}
 			this.welcomeSocket.close();
 		}
@@ -240,5 +247,12 @@ public class Server implements Runnable {
 			addPlugin(plugin.getName());
 			System.out.println("Added " + plugin.getName());
 		}
+	}
+	
+	public Queue<ConnectionHandler> getHandlers(){
+		return this.handlers;
+	}
+	public void addHandler(ConnectionHandler handlers){
+		this.handlers.add(handlers);
 	}
 }
