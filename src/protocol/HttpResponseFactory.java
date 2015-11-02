@@ -123,7 +123,7 @@ public class HttpResponseFactory {
 		//creating the response		
 		HttpResponse response = new HttpResponse(Protocol.VERSION,
 				Protocol.BAD_REQUEST_CODE, Protocol.BAD_REQUEST_TEXT,
-				new HashMap<String, String>(), null);
+				new HashMap<String, String>(), file);
 
 		// Lets fill up header fields with more information
 		fillGeneralHeader(response, connection);
