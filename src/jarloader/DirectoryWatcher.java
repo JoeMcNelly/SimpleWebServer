@@ -19,7 +19,7 @@ public class DirectoryWatcher implements Runnable {
 	}
 	
 	public void startTimer() throws IOException, InterruptedException {
-		Path faxFolder = Paths.get("./MyPlugins");
+		Path faxFolder = Paths.get("./plugins");
 		WatchService watchService = FileSystems.getDefault().newWatchService();
 		faxFolder.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
 
