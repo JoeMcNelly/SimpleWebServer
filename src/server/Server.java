@@ -31,6 +31,7 @@ import protocol.PostRequestHandler;
 import protocol.Protocol;
 import protocol.PutRequestHandler;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -77,6 +78,7 @@ public class Server implements Runnable {
 		this.watcher = new DirectoryWatcher(this);
 		Thread t = new Thread(this.watcher);
 		t.start();
+		initPlugins();
 	}
 	
 	public IPlugin getPlugin(String URI) {
@@ -228,5 +230,15 @@ public class Server implements Runnable {
 	
 	public void removePlugin(String filename) {
 		//TODO: do something???
+	}
+	
+	private void initPlugins(){
+		File pluginDir = new File("./plugins/"); 
+		File[] plugins = pluginDir.listFiles();
+		for (File plugin : plugins){
+			System.out.println("Trying to add " + plugin.getName());
+			addPlugin(plugin.getName());
+			System.out.println("Added " + plugin.getName());
+		}
 	}
 }
