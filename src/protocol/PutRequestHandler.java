@@ -76,7 +76,8 @@ public class PutRequestHandler implements IRequestHandler {
 			writer.write(contents.getBytes());
 			writer.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			return HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
 		}
 		return response;
 	}
