@@ -48,9 +48,7 @@ public class PostRequestHandler implements IRequestHandler {
 	public HttpResponse handleRequest(HttpRequest request, String rootDir) {
 		HttpResponse response = null;
 		String uri = request.getUri();
-
 		File file = new File(rootDir + uri);
-
 		if (file.exists()) {
 			if (file.isDirectory()) {
 				response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
@@ -70,7 +68,8 @@ public class PostRequestHandler implements IRequestHandler {
 			writer.write(contents.getBytes());
 			writer.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			return HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
 		}
 		return HttpResponseFactory.create200OK(file, Protocol.CLOSE);
 	}
