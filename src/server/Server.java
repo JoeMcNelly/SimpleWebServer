@@ -22,14 +22,20 @@
 package server;
 
 import gui.WebServer;
+import jarloader.DirectoryWatcher;
+import jarloader.JarLoader;
+import protocol.DeleteRequestHandler;
+import protocol.GetRequestHandler;
+import protocol.IRequestHandler;
+import protocol.PostRequestHandler;
+import protocol.Protocol;
+import protocol.PutRequestHandler;
 
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
-
-import Plugin.DefaultPlugin;
 import Plugin.IPlugin;
 
 /**
@@ -46,10 +52,11 @@ public class Server implements Runnable {
 	
 	private long connections;
 	private long serviceTime;
-	
+	private DirectoryWatcher watcher;
 	private WebServer window;
 	
 	private Map<String, IPlugin> plugins;
+	private Map<String, IRequestHandler> requestMap;
 	/**
 	 * @param rootDirectory
 	 * @param port
@@ -62,12 +69,28 @@ public class Server implements Runnable {
 		this.serviceTime = 0;
 		this.window = window;
 		this.plugins = new HashMap<String, IPlugin>();
-		this.plugins.put("MyPlugin", new DefaultPlugin());
+		this.requestMap = new HashMap<String, IRequestHandler>();
+		this.requestMap.put(Protocol.GET, new GetRequestHandler());
+		this.requestMap.put(Protocol.POST, new PostRequestHandler());
+		this.requestMap.put(Protocol.PUT, new PutRequestHandler());
+		this.requestMap.put(Protocol.DELETE, new DeleteRequestHandler());
+		this.watcher = new DirectoryWatcher(this);
+		Thread t = new Thread(this.watcher);
+		t.start();
 	}
 	
 	public IPlugin getPlugin(String URI) {
 		try{
 			return plugins.get(URI);
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public IRequestHandler getRequestHandler(String method) {
+		try{
+			return requestMap.get(method);
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
@@ -185,5 +208,25 @@ public class Server implements Runnable {
 		if(this.welcomeSocket != null)
 			return this.welcomeSocket.isClosed();
 		return true;
+	}
+	
+	public void addPlugin(String s){
+		JarLoader loader = new JarLoader("./plugins/"+s);
+		String newString = s.substring(0, s.length()-4);
+		Class clazz;
+		try {
+			clazz = loader.loadClass(newString,true);
+			Object o = clazz.newInstance();
+			if(o instanceof IPlugin){
+				IPlugin pluginClass = (IPlugin) o;
+				this.plugins.put(s.replace(".jar", ""), pluginClass);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void removePlugin(String filename) {
+		//TODO: do something???
 	}
 }

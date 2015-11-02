@@ -9,9 +9,15 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 
+import server.Server;
+
 public class DirectoryWatcher implements Runnable {
 
-
+	private Server server;
+	public DirectoryWatcher(Server server) {
+		this.server = server;
+	}
+	
 	public void startTimer() throws IOException, InterruptedException {
 		Path faxFolder = Paths.get("./MyPlugins");
 		WatchService watchService = FileSystems.getDefault().newWatchService();
@@ -26,12 +32,12 @@ public class DirectoryWatcher implements Runnable {
 				if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
 					String fileName = event.context().toString();
 					System.out.println("File Created:" + fileName);
-				
+					this.server.addPlugin(fileName);
 				}
 				if (StandardWatchEventKinds.ENTRY_DELETE.equals(event.kind())) {
 					String fileName = event.context().toString();
 					System.out.println("File Removed: " + fileName);
-				
+					this.server.removePlugin(fileName);
 				}
 
 			}

@@ -53,15 +53,11 @@ import Plugin.IPlugin;
 public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
-	private Map<String, IRequestHandler> requestMap = new HashMap<String, IRequestHandler>();
+	
 
 	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
-		this.requestMap.put(Protocol.GET, new GetRequestHandler());
-		this.requestMap.put(Protocol.POST, new PostRequestHandler());
-		this.requestMap.put(Protocol.PUT, new PutRequestHandler());
-		this.requestMap.put(Protocol.DELETE, new DeleteRequestHandler());
 	}
 
 	/**
@@ -109,8 +105,21 @@ public class ConnectionHandler implements Runnable {
 			request = HttpRequest.read(inStream);
 			System.out.println(request);
 
-			response = requestMap.get(request.getMethod()).handleRequest(
-					request, server.getRootDirectory());
+			//response = requestMap.get(request.getMethod()).handleRequest(
+			//		request, server.getRootDirectory());
+			
+			String[] URIparts = request.getUri().split("/");
+			String URI = URIparts[1];
+			IPlugin plugin = this.server.getPlugin(URI);
+			IRequestHandler handler = this.server.getRequestHandler(request.getMethod());
+			if(plugin != null) {
+				response = plugin.handle(request, this.server.getRootDirectory());
+			} else if( handler != null){
+				response = handler.handleRequest(request, this.server.getRootDirectory());
+			}
+			else {
+				response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
+			}
 
 			if (response.getPhrase().equals(Protocol.NOT_FOUND_TEXT)) {
 				try {
@@ -126,33 +135,6 @@ public class ConnectionHandler implements Runnable {
 						// "request.version" string ignoring the case of the
 						// letters in both strings
 						// TODO: Fill in the rest of the code here
-					}
-					String[] URIparts = request.getUri().split("/");
-					String URI = URIparts[1];
-					File file = new File(this.server.getRootDirectory() + URI);
-					if (file.exists()) {
-						JarLoader loader = new JarLoader("./web/" + URI
-								+ ".jar");
-						Class clazz;
-						try {
-							clazz = loader.loadClass(URI, true);
-							Object o = clazz.newInstance();
-							if (o instanceof IPlugin) {
-								IPlugin pluginClass = (IPlugin) o;
-								response = ((IPlugin) o).handle(request,
-										this.server.getRootDirectory());
-
-							}
-						} catch (ClassNotFoundException
-								| InstantiationException
-								| IllegalAccessException e1) {
-							e1.printStackTrace();
-						}
-
-					}else {
-						String location = this.server.getRootDirectory() + System.getProperty("file.separator") + "404message.txt" + System.getProperty("file.separator");
-						file = new File(location);
-						response = HttpResponseFactory.create200OK(file, Protocol.CLOSE);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
