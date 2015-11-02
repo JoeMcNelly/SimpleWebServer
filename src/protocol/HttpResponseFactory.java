@@ -164,12 +164,13 @@ public class HttpResponseFactory {
 	 * @return A {@link HttpResponse} object represent 404 status.
 	 */
 	public static HttpResponse create404NotFound(String connection) {
+		//find the 404 file
 		String dir = System.getProperty("user.dir");
 		File file = new File(dir + System.getProperty("file.separator") + "web"
 				+ System.getProperty("file.separator") + "404message.txt"
 				+ System.getProperty("file.separator"));
-		System.out.println(file.getAbsolutePath());
 		
+		//creating the response
 		HttpResponse response = new HttpResponse(Protocol.VERSION,
 				Protocol.NOT_FOUND_CODE, Protocol.NOT_FOUND_TEXT,
 				new HashMap<String, String>(), file);

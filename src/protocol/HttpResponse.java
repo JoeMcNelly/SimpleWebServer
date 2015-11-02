@@ -154,6 +154,32 @@ public class HttpResponse {
 			}
 			// Close the file input stream, we are done reading
 			inStream.close();
+		}else if(this.getStatus() == Protocol.NOT_FOUND_CODE && file != null) {
+			// Process text documents
+			FileInputStream fileInStream = new FileInputStream(file);
+			BufferedInputStream inStream = new BufferedInputStream(fileInStream, Protocol.CHUNK_LENGTH);
+			
+			byte[] buffer = new byte[Protocol.CHUNK_LENGTH];
+			int bytesRead = 0;
+			// While there is some bytes to read from file, read each chunk and send to the socket out stream
+			while((bytesRead = inStream.read(buffer)) != -1) {
+				out.write(buffer, 0, bytesRead);
+			}
+			// Close the file input stream, we are done reading
+			inStream.close();
+		}else if(this.getStatus() == Protocol.BAD_REQUEST_CODE && file != null) {
+			// Process text documents
+			FileInputStream fileInStream = new FileInputStream(file);
+			BufferedInputStream inStream = new BufferedInputStream(fileInStream, Protocol.CHUNK_LENGTH);
+			
+			byte[] buffer = new byte[Protocol.CHUNK_LENGTH];
+			int bytesRead = 0;
+			// While there is some bytes to read from file, read each chunk and send to the socket out stream
+			while((bytesRead = inStream.read(buffer)) != -1) {
+				out.write(buffer, 0, bytesRead);
+			}
+			// Close the file input stream, we are done reading
+			inStream.close();
 		}
 		
 		// Flush the data so that outStream sends everything through the socket 
