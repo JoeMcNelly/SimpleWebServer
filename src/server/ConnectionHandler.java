@@ -124,7 +124,7 @@ public class ConnectionHandler implements Runnable {
 			}
 			// TODO: Handle version not supported code as well
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			// For any other error, we will create bad request response as well
 			response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
 		}
