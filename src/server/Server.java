@@ -184,11 +184,13 @@ public class Server implements Runnable {
 				// handler in a new thread
 				String ipAddress = connectionSocket.getInetAddress().toString();
 				addIPAddress(ipAddress);
-				
+
 				if (!isBlackListed(ipAddress)) {
-					 ConnectionHandler handler = new ConnectionHandler(this,
-							 connectionSocket);
-							 new Thread(handler).start();
+					ConnectionHandler handler = new ConnectionHandler(this,
+							connectionSocket);
+					new Thread(handler).start();
+				}else {
+					System.out.println("blackIp");
 				}
 			}
 			this.welcomeSocket.close();
@@ -197,13 +199,7 @@ public class Server implements Runnable {
 		}
 	}
 
-	/**
-	 * @param ipAddress
-	 */
-	private void addIPAddress(String ipAddress) {
-		//TODO
-		
-	}
+	
 
 	/**
 	 * Stops the server from listening further.
@@ -237,10 +233,9 @@ public class Server implements Runnable {
 		return true;
 	}
 
-	
-	public boolean addPlugin(String s){
-		JarLoader loader = new JarLoader("./plugins/"+s);
-		String newString = s.substring(0, s.length()-4);
+	public boolean addPlugin(String s) {
+		JarLoader loader = new JarLoader("./plugins/" + s);
+		String newString = s.substring(0, s.length() - 4);
 
 		Class clazz;
 		try {
@@ -266,15 +261,41 @@ public class Server implements Runnable {
 		for (File plugin : plugins) {
 			System.out.println("Trying to add " + plugin.getName());
 			boolean success = addPlugin(plugin.getName());
-			System.out.println(success ? "Added " + plugin.getName()+"!" : plugin.getName() + " was not loaded, JAR was misformed.");
+			System.out.println(success ? "Added " + plugin.getName() + "!"
+					: plugin.getName() + " was not loaded, JAR was misformed.");
 		}
 	}
 
 	public void addBlackListedIP(String ip) {
+		System.out.println("blackip: "+ip);
 		this.blackListedIPs.add(ip);
 	}
 
 	public boolean isBlackListed(String ip) {
 		return this.blackListedIPs.contains(ip);
+	}
+	/**
+	 * @param ipAddress
+	 */
+	private void addIPAddress(String ipAddress) {
+		System.out.println("add ipAddress: " +ipAddress);
+		if (this.ipOccurrences.containsKey(ipAddress)) {
+			if (ipOccurrences.get(ipAddress) == 15) {
+				addBlackListedIP(ipAddress);
+			} else {
+				this.ipOccurrences.put(ipAddress,
+						this.ipOccurrences.get(ipAddress) + 1);
+			}
+		} else {
+			this.ipOccurrences.put(ipAddress, 1);
+		}
+	}
+
+	/**
+	 * @param string
+	 */
+	public void decreasingIPOccurrences(String ipAddress) {
+		this.ipOccurrences.put(ipAddress, this.ipOccurrences.get(ipAddress) -1 );
+		
 	}
 }

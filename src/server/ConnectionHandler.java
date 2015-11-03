@@ -111,30 +111,6 @@ public class ConnectionHandler implements Runnable {
 			else {
 				response = HttpResponseFactory.create400BadRequest(Protocol.CLOSE);
 			}
-
-//			if (response.getPhrase().equals(Protocol.NOT_FOUND_TEXT)) {
-//				try {
-//					// Fill in the code to create a response for version
-//					// mismatch.
-//					// You may want to use constants such as Protocol.VERSION,
-//					// Protocol.NOT_SUPPORTED_CODE, and more.
-//					// You can check if the version matches as follows
-//					if (!request.getVersion()
-//							.equalsIgnoreCase(Protocol.VERSION)) {
-//						// Here you checked that the "Protocol.VERSION" string
-//						// is not equal to the
-//						// "request.version" string ignoring the case of the
-//						// letters in both strings
-//						// TODO: Fill in the rest of the code here
-//					}
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//					response = HttpResponseFactory
-//							.create400BadRequest(Protocol.CLOSE);
-//				}
-//
-//			}
-
 		} catch (ProtocolException pe) {
 			// We have some sort of protocol exception. Get its status code and
 			// create response
@@ -185,6 +161,7 @@ public class ConnectionHandler implements Runnable {
 			// Write response and we are all done so close the socket
 			response.write(outStream);
 			// System.out.println(response);
+			this.server.decreasingIPOccurrences(this.socket.getInetAddress().toString());
 			socket.close();
 		} catch (Exception e) {
 			// We will ignore this exception
