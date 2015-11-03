@@ -31,8 +31,10 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -67,7 +69,7 @@ public class Server implements Runnable {
 	private Map<String, IRequestHandler> requestMap;
 	private ArrayList<String> blackListedIPs;
 	private HashMap<String, Integer> ipOccurrences;
-	private Queue<Socket> waitingConnections;
+	public List<Socket> waitingConnections;
 
 	/**
 	 * @param rootDirectory
@@ -89,7 +91,7 @@ public class Server implements Runnable {
 		this.blackListedIPs = new ArrayList<String>();
 		this.ipOccurrences = new HashMap<String, Integer>();
 		this.watcher = new DirectoryWatcher(this);
-		this.waitingConnections = new LinkedList<Socket>();
+		this.waitingConnections = Collections.synchronizedList(new LinkedList<Socket>());
 		this.runningConnections = 0;
 		Thread t = new Thread(this.watcher);
 		t.start();
@@ -195,7 +197,7 @@ public class Server implements Runnable {
 
 				if (!isBlackListed(ipAddress)) {
 
-					this.waitingConnections.offer(connectionSocket);
+					this.waitingConnections.add(connectionSocket);
 					System.out.println("Connection added to queue");
 					
 				}else {
@@ -320,10 +322,11 @@ public class Server implements Runnable {
 	}
 	
 	public Socket getWaitingConnection() {
-		return this.waitingConnections.poll();
+		return this.waitingConnections.remove(0);
 	}
 	
 	public boolean hasWaitingConnections() {
 		return !this.waitingConnections.isEmpty();
 	}
+	
 }

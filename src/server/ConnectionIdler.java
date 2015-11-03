@@ -25,7 +25,7 @@
  * NY 13699-5722
  * http://clarkson.edu/~rupakhcr
  */
- 
+
 package server;
 
 import java.net.Socket;
@@ -34,30 +34,35 @@ import java.net.Socket;
  * 
  * @author Chandan R. Rupakheti (rupakhcr@clarkson.edu)
  */
-public class ConnectionIdler implements Runnable{
+public class ConnectionIdler implements Runnable {
 	private Server server;
-	
+
 	public ConnectionIdler(Server server) {
 		this.server = server;
 	}
-	
+
 	@Override
 	public void run() {
-		while(true) {
+		while (true) {
+
+			// if(this.server.isStoped())
+			// break;
+//			System.out.println("running:" + (this.server.getRunningConnectionswait() < this.server.MAX_RUNNING_CONNECTIONS));
 			
-//			if(this.server.isStoped())
-//				break;
-			if(this.server.getRunningConnections()<this.server.MAX_RUNNING_CONNECTIONS&&this.server.hasWaitingConnections()) {
+			if(this.server.waitingConnections.size() > 0)
+				System.out.println(this.server.waitingConnections.size());
+			
+			if (this.server.getRunningConnections() < this.server.MAX_RUNNING_CONNECTIONS
+					&& this.server.hasWaitingConnections()) {
 				Socket s = this.server.getWaitingConnection();
 				this.server.increaseRunningConnections();
 				System.out.println("Connection taken from queue");
 				ConnectionHandler handler = new ConnectionHandler(server, s);
 				new Thread(handler).start();
-				
-				
+
 			}
 		}
-		
+
 	}
 
 }
