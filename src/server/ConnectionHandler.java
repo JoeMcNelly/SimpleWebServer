@@ -44,11 +44,13 @@ import Plugin.IPlugin;
 public class ConnectionHandler implements Runnable {
 	private Server server;
 	private Socket socket;
+	private boolean isThrottled;
 	
 
 	public ConnectionHandler(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
+		this.isThrottled = false;
 	}
 
 	/**
@@ -159,7 +161,11 @@ public class ConnectionHandler implements Runnable {
 
 		try {
 			// Write response and we are all done so close the socket
-			response.write(outStream);
+			if(!this.isThrottled){
+				response.write(outStream);
+			}else {
+				response.write(new ThrottledOutputStream(outStream));
+			}
 			// System.out.println(response);
 			this.server.handleFinishedConnection(this);
 			socket.close();
@@ -176,6 +182,6 @@ public class ConnectionHandler implements Runnable {
 	}
 	
 	public void throttle() {
-		this.socket.setPerformancePreferences(-0, 0, 10);
+		this.isThrottled = true;
 	}
 }

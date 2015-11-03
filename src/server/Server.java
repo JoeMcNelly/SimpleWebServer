@@ -207,7 +207,6 @@ public class Server implements Runnable {
 					}else {
 						this.waitingConnections.add(connectionSocket);
 						System.out.println("throttled connection added");
-						connectionSocket.setPerformancePreferences(0, 0, 10);
 						this.idler.throttleConnections(ipAddress);
 					}
 				} else {
@@ -356,7 +355,7 @@ public class Server implements Runnable {
 	 * @param ipAddress
 	 * @return
 	 */
-	private boolean isThrottled(String ipAddress) {
+	public boolean isThrottled(String ipAddress) {
 		
 		return this.throttledIPs.contains(ipAddress);
 	}

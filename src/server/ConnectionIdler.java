@@ -59,6 +59,9 @@ public class ConnectionIdler implements Runnable {
 				System.out.println("Connection taken from queue");
 				ConnectionHandler handler = new ConnectionHandler(server, s);
 				String ipAddress = s.getInetAddress().toString();
+				if(this.server.isThrottled(ipAddress)) {
+					handler.throttle();
+				}
 				if (!ipThreads.containsKey(ipAddress)) {
 					List<ConnectionHandler> list = Collections.synchronizedList(new LinkedList<ConnectionHandler>());
 					ipThreads.put(ipAddress, list);
@@ -73,15 +76,18 @@ public class ConnectionIdler implements Runnable {
 
 	public void throttleConnections(String ipAddress) {
 		if (ipThreads.containsKey(ipAddress)) {
-			for (ConnectionHandler handle : ipThreads.get(ipAddress)) {
-				handle.throttle();
+			List<ConnectionHandler> list = ipThreads.get(ipAddress);
+			synchronized (list) {
+				for (ConnectionHandler handle : list) {
+					handle.throttle();
+				}
 			}
 		}
 	}
 
 	public void connectionDone(ConnectionHandler handle) {
 		String ipAddress = handle.getSocket().getInetAddress().toString();
-		if(ipThreads.containsKey(ipAddress)) {
+		if (ipThreads.containsKey(ipAddress)) {
 			ipThreads.get(ipAddress).remove(handle);
 		}
 	}
