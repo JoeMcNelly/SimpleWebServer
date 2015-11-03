@@ -47,11 +47,9 @@ public class ConnectionIdler implements Runnable {
 
 			// if(this.server.isStoped())
 			// break;
-//			System.out.println("running:" + (this.server.getRunningConnectionswait() < this.server.MAX_RUNNING_CONNECTIONS));
-			
-			if(this.server.waitingConnections.size() > 0)
-				System.out.println(this.server.waitingConnections.size());
-			
+			// System.out.println("running:" +
+			// (this.server.getRunningConnectionswait() <
+			// this.server.MAX_RUNNING_CONNECTIONS));
 			if (this.server.getRunningConnections() < this.server.MAX_RUNNING_CONNECTIONS
 					&& this.server.hasWaitingConnections()) {
 				Socket s = this.server.getWaitingConnection();

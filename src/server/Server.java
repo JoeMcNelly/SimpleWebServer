@@ -64,10 +64,12 @@ public class Server implements Runnable {
 	private WebServer window;
 	private int runningConnections;
 	public static final int MAX_RUNNING_CONNECTIONS = 30;
-
+	public static final int BLACKLISTING_LIMIT = 100;
+	public static final int THROTTLING_LIMIT = 25;
 	private Map<String, IPlugin> plugins;
 	private Map<String, IRequestHandler> requestMap;
 	private ArrayList<String> blackListedIPs;
+	private ArrayList<String> throttledIPs;
 	private HashMap<String, Integer> ipOccurrences;
 	public List<Socket> waitingConnections;
 
@@ -89,9 +91,11 @@ public class Server implements Runnable {
 		this.requestMap.put(Protocol.PUT, new PutRequestHandler());
 		this.requestMap.put(Protocol.DELETE, new DeleteRequestHandler());
 		this.blackListedIPs = new ArrayList<String>();
+		this.throttledIPs = new ArrayList<String>();
 		this.ipOccurrences = new HashMap<String, Integer>();
 		this.watcher = new DirectoryWatcher(this);
-		this.waitingConnections = Collections.synchronizedList(new LinkedList<Socket>());
+		this.waitingConnections = Collections
+				.synchronizedList(new LinkedList<Socket>());
 		this.runningConnections = 0;
 		Thread t = new Thread(this.watcher);
 		t.start();
@@ -174,10 +178,10 @@ public class Server implements Runnable {
 	 * request.
 	 */
 	public void run() {
-		
+
 		Thread t = new Thread(new ConnectionIdler(this));
 		t.start();
-		
+
 		try {
 			this.welcomeSocket = new ServerSocket(port);
 
@@ -196,11 +200,14 @@ public class Server implements Runnable {
 				addIPAddress(ipAddress);
 
 				if (!isBlackListed(ipAddress)) {
-
-					this.waitingConnections.add(connectionSocket);
-					System.out.println("Connection added to queue");
-					
-				}else {
+					if (!isThrottled(ipAddress)) {
+						this.waitingConnections.add(connectionSocket);
+						System.out.println("Connection added to queue");
+					}else {
+						this.waitingConnections.add(connectionSocket);
+						System.out.println("throttled connection added");
+					}
+				} else {
 					System.out.println("blackIp");
 				}
 			}
@@ -210,7 +217,6 @@ public class Server implements Runnable {
 		}
 	}
 
-	
 
 	/**
 	 * Stops the server from listening further.
@@ -278,21 +284,23 @@ public class Server implements Runnable {
 	}
 
 	public void addBlackListedIP(String ip) {
-		System.out.println("blackip: "+ip);
 		this.blackListedIPs.add(ip);
 	}
 
 	public boolean isBlackListed(String ip) {
 		return this.blackListedIPs.contains(ip);
 	}
+
 	/**
 	 * @param ipAddress
 	 */
 	private void addIPAddress(String ipAddress) {
-		System.out.println("add ipAddress: " +ipAddress);
+		System.out.println("add ipAddress: " + ipAddress);
 		if (this.ipOccurrences.containsKey(ipAddress)) {
-			if (ipOccurrences.get(ipAddress) == 15) {
+			if (ipOccurrences.get(ipAddress) == BLACKLISTING_LIMIT) {
 				addBlackListedIP(ipAddress);
+			} else if (ipOccurrences.get(ipAddress) == THROTTLING_LIMIT) {
+				addThrottledIP(ipAddress);
 			} else {
 				this.ipOccurrences.put(ipAddress,
 						this.ipOccurrences.get(ipAddress) + 1);
@@ -306,27 +314,47 @@ public class Server implements Runnable {
 	 * @param string
 	 */
 	public void decreasingIPOccurrences(String ipAddress) {
-		this.ipOccurrences.put(ipAddress, this.ipOccurrences.get(ipAddress) -1 );
-		
+		this.ipOccurrences
+				.put(ipAddress, this.ipOccurrences.get(ipAddress) - 1);
+
 	}
-	
+
 	public void increaseRunningConnections() {
 		this.runningConnections++;
 	}
-	
+
 	public void decreaseRunningConnections() {
 		this.runningConnections--;
 	}
+
 	public int getRunningConnections() {
 		return this.runningConnections;
 	}
-	
+
 	public Socket getWaitingConnection() {
 		return this.waitingConnections.remove(0);
 	}
-	
+
 	public boolean hasWaitingConnections() {
 		return !this.waitingConnections.isEmpty();
 	}
+
+	/**
+	 * @param ipAddress
+	 */
+	private void addThrottledIP(String ipAddress) {
+		this.throttledIPs.add(ipAddress);
+
+	}
 	
+	/**
+	 * @param ipAddress
+	 * @return
+	 */
+	private boolean isThrottled(String ipAddress) {
+		
+		return this.throttledIPs.contains(ipAddress);
+	}
+
+
 }
