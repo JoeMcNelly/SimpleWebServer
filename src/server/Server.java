@@ -216,6 +216,7 @@ public class Server implements Runnable {
 			}
 			this.welcomeSocket.close();
 		} catch (Exception e) {
+			e.printStackTrace();
 			window.showSocketException(e);
 		}
 	}
