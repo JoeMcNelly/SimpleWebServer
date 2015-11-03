@@ -60,11 +60,14 @@ public class Server implements Runnable {
 	private long serviceTime;
 	private DirectoryWatcher watcher;
 	private WebServer window;
+	private int runningConnections;
+	public static final int MAX_RUNNING_CONNECTIONS = 30;
 
 	private Map<String, IPlugin> plugins;
 	private Map<String, IRequestHandler> requestMap;
 	private ArrayList<String> blackListedIPs;
 	private HashMap<String, Integer> ipOccurrences;
+	private Queue<Socket> waitingConnections;
 
 	/**
 	 * @param rootDirectory
@@ -86,6 +89,8 @@ public class Server implements Runnable {
 		this.blackListedIPs = new ArrayList<String>();
 		this.ipOccurrences = new HashMap<String, Integer>();
 		this.watcher = new DirectoryWatcher(this);
+		this.waitingConnections = new LinkedList<Socket>();
+		this.runningConnections = 0;
 		Thread t = new Thread(this.watcher);
 		t.start();
 		initPlugins();
@@ -167,6 +172,10 @@ public class Server implements Runnable {
 	 * request.
 	 */
 	public void run() {
+		
+		Thread t = new Thread(new ConnectionIdler(this));
+		t.start();
+		
 		try {
 			this.welcomeSocket = new ServerSocket(port);
 
@@ -179,16 +188,15 @@ public class Server implements Runnable {
 				// Come out of the loop if the stop flag is set
 				if (this.stop)
 					break;
-
 				// Create a handler for this incoming connection and start the
 				// handler in a new thread
 				String ipAddress = connectionSocket.getInetAddress().toString();
 				addIPAddress(ipAddress);
 
 				if (!isBlackListed(ipAddress)) {
-					ConnectionHandler handler = new ConnectionHandler(this,
-							connectionSocket);
-					new Thread(handler).start();
+
+					this.waitingConnections.offer(connectionSocket);
+					
 				}else {
 					System.out.println("blackIp");
 				}
@@ -297,5 +305,20 @@ public class Server implements Runnable {
 	public void decreasingIPOccurrences(String ipAddress) {
 		this.ipOccurrences.put(ipAddress, this.ipOccurrences.get(ipAddress) -1 );
 		
+	}
+	
+	public void increaseRunningConnections() {
+		this.runningConnections++;
+	}
+	
+	public void decreaseRunningConnections() {
+		this.runningConnections--;
+	}
+	public int getRunningConnections() {
+		return this.runningConnections;
+	}
+	
+	public Socket getWaitingConnection() {
+		return this.waitingConnections.poll();
 	}
 }

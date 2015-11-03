@@ -162,6 +162,7 @@ public class ConnectionHandler implements Runnable {
 			response.write(outStream);
 			// System.out.println(response);
 			this.server.decreasingIPOccurrences(this.socket.getInetAddress().toString());
+			this.server.decreaseRunningConnections();
 			socket.close();
 		} catch (Exception e) {
 			// We will ignore this exception
