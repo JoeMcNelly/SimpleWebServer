@@ -196,6 +196,7 @@ public class Server implements Runnable {
 				if (!isBlackListed(ipAddress)) {
 
 					this.waitingConnections.offer(connectionSocket);
+					System.out.println("Connection added to queue");
 					
 				}else {
 					System.out.println("blackIp");
@@ -320,5 +321,9 @@ public class Server implements Runnable {
 	
 	public Socket getWaitingConnection() {
 		return this.waitingConnections.poll();
+	}
+	
+	public boolean hasWaitingConnections() {
+		return !this.waitingConnections.isEmpty();
 	}
 }
