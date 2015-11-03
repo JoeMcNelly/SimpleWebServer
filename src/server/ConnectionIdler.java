@@ -29,6 +29,11 @@
 package server;
 
 import java.net.Socket;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -36,31 +41,49 @@ import java.net.Socket;
  */
 public class ConnectionIdler implements Runnable {
 	private Server server;
+	private Map<String, List<ConnectionHandler>> ipThreads;
 
 	public ConnectionIdler(Server server) {
 		this.server = server;
+		HashMap<String, List<ConnectionHandler>> map = new HashMap<String, List<ConnectionHandler>>();
+		this.ipThreads = Collections.synchronizedMap(map);
 	}
 
 	@Override
 	public void run() {
 		while (true) {
-
-			// if(this.server.isStoped())
-			// break;
-			// System.out.println("running:" +
-			// (this.server.getRunningConnectionswait() <
-			// this.server.MAX_RUNNING_CONNECTIONS));
 			if (this.server.getRunningConnections() < this.server.MAX_RUNNING_CONNECTIONS
 					&& this.server.hasWaitingConnections()) {
 				Socket s = this.server.getWaitingConnection();
 				this.server.increaseRunningConnections();
 				System.out.println("Connection taken from queue");
 				ConnectionHandler handler = new ConnectionHandler(server, s);
+				String ipAddress = s.getInetAddress().toString();
+				if (!ipThreads.containsKey(ipAddress)) {
+					List<ConnectionHandler> list = Collections.synchronizedList(new LinkedList<ConnectionHandler>());
+					ipThreads.put(ipAddress, list);
+				}
+				ipThreads.get(ipAddress).add(handler);
 				new Thread(handler).start();
 
 			}
 		}
 
+	}
+
+	public void throttleConnections(String ipAddress) {
+		if (ipThreads.containsKey(ipAddress)) {
+			for (ConnectionHandler handle : ipThreads.get(ipAddress)) {
+				handle.throttle();
+			}
+		}
+	}
+
+	public void connectionDone(ConnectionHandler handle) {
+		String ipAddress = handle.getSocket().getInetAddress().toString();
+		if(ipThreads.containsKey(ipAddress)) {
+			ipThreads.get(ipAddress).remove(handle);
+		}
 	}
 
 }

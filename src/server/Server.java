@@ -57,7 +57,7 @@ public class Server implements Runnable {
 	private int port;
 	private boolean stop;
 	private ServerSocket welcomeSocket;
-
+	private ConnectionIdler idler;
 	private long connections;
 	private long serviceTime;
 	private DirectoryWatcher watcher;
@@ -178,8 +178,9 @@ public class Server implements Runnable {
 	 * request.
 	 */
 	public void run() {
-
-		Thread t = new Thread(new ConnectionIdler(this));
+		
+		this.idler = new ConnectionIdler(this);
+		Thread t = new Thread(idler);
 		t.start();
 
 		try {
@@ -206,6 +207,7 @@ public class Server implements Runnable {
 					}else {
 						this.waitingConnections.add(connectionSocket);
 						System.out.println("throttled connection added");
+						this.idler.throttleConnections(ipAddress);
 					}
 				} else {
 					System.out.println("blackIp");
@@ -301,6 +303,7 @@ public class Server implements Runnable {
 				addBlackListedIP(ipAddress);
 			} else if (ipOccurrences.get(ipAddress) == THROTTLING_LIMIT) {
 				addThrottledIP(ipAddress);
+				this.ipOccurrences.put(ipAddress, this.ipOccurrences.get(ipAddress) + 1);
 			} else {
 				this.ipOccurrences.put(ipAddress,
 						this.ipOccurrences.get(ipAddress) + 1);
@@ -356,5 +359,11 @@ public class Server implements Runnable {
 		return this.throttledIPs.contains(ipAddress);
 	}
 
+	public void handleFinishedConnection(ConnectionHandler handle) {
+		String ipAddress = handle.getSocket().getInetAddress().toString();
+		decreasingIPOccurrences(ipAddress);
+		decreaseRunningConnections();
+		this.idler.connectionDone(handle);
+	}
 
 }

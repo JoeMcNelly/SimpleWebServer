@@ -161,8 +161,7 @@ public class ConnectionHandler implements Runnable {
 			// Write response and we are all done so close the socket
 			response.write(outStream);
 			// System.out.println(response);
-			this.server.decreasingIPOccurrences(this.socket.getInetAddress().toString());
-			this.server.decreaseRunningConnections();
+			this.server.handleFinishedConnection(this);
 			socket.close();
 		} catch (Exception e) {
 			// We will ignore this exception
@@ -174,5 +173,9 @@ public class ConnectionHandler implements Runnable {
 		// Get the end time
 		long end = System.currentTimeMillis();
 		this.server.incrementServiceTime(end - start);
+	}
+	
+	public void throttle() {
+		this.socket.setPerformancePreferences(-100, -100, 100);
 	}
 }
