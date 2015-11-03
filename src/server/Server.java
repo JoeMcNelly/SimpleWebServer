@@ -63,7 +63,7 @@ public class Server implements Runnable {
 	private DirectoryWatcher watcher;
 	private WebServer window;
 	private int runningConnections;
-	public static final int MAX_RUNNING_CONNECTIONS = 30;
+	public static final int MAX_RUNNING_CONNECTIONS = 1000;
 	public static final int BLACKLISTING_LIMIT = 100;
 	public static final int THROTTLING_LIMIT = 25;
 	private Map<String, IPlugin> plugins;
