@@ -26,6 +26,7 @@ import jarloader.DirectoryWatcher;
 import jarloader.JarLoader;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -219,7 +220,7 @@ public class Server implements Runnable {
 		return true;
 	}
 	
-	public void addPlugin(String s){
+	public boolean addPlugin(String s){
 		JarLoader loader = new JarLoader("./plugins/"+s);
 		String newString = s.substring(0, s.length()-4);
 		Class clazz;
@@ -231,8 +232,9 @@ public class Server implements Runnable {
 				this.plugins.put(s.replace(".jar", ""), pluginClass);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 	
 	public void removePlugin(String filename) {
@@ -244,8 +246,8 @@ public class Server implements Runnable {
 		File[] plugins = pluginDir.listFiles();
 		for (File plugin : plugins){
 			System.out.println("Trying to add " + plugin.getName());
-			addPlugin(plugin.getName());
-			System.out.println("Added " + plugin.getName());
+			boolean success = addPlugin(plugin.getName());
+			System.out.println(success ? "Added " + plugin.getName()+"!" : plugin.getName() + " was not loaded, JAR was misformed.");
 		}
 	}
 	

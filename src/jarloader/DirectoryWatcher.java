@@ -31,8 +31,9 @@ public class DirectoryWatcher implements Runnable {
 				WatchEvent.Kind kind = event.kind();
 				if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
 					String fileName = event.context().toString();
-					System.out.println("File Created:" + fileName);
-					this.server.addPlugin(fileName);
+					System.out.println("Trying to add " + fileName);
+					boolean success = this.server.addPlugin(fileName);
+					System.out.println(success ? "Added " + fileName+"!" : fileName + " was not loaded, JAR was misformed.");
 				}
 				if (StandardWatchEventKinds.ENTRY_DELETE.equals(event.kind())) {
 					String fileName = event.context().toString();
