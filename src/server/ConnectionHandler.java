@@ -135,7 +135,11 @@ public class ConnectionHandler implements Runnable {
 			// Means there was an error, now write the response object to the
 			// socket
 			try {
-				response.write(outStream);
+				if(!this.isThrottled){
+					response.write(outStream);
+				}else {
+					response.write(new ThrottledOutputStream(outStream));
+				}
 				// System.out.println(response);
 			} catch (Exception e) {
 				// We will ignore this exception
