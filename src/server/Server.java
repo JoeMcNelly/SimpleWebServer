@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/lgpl.html>.
  * 
  */
- 
+
 package server;
 
 import gui.WebServer;
@@ -29,6 +29,7 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -43,8 +44,8 @@ import protocol.PutRequestHandler;
 import Plugin.IPlugin;
 
 /**
- * This represents a welcoming server for the incoming
- * TCP request from a HTTP client such as a web browser. 
+ * This represents a welcoming server for the incoming TCP request from a HTTP
+ * client such as a web browser.
  * 
  * @author Chandan R. Rupakheti (rupakhet@rose-hulman.edu)
  */
@@ -53,15 +54,17 @@ public class Server implements Runnable {
 	private int port;
 	private boolean stop;
 	private ServerSocket welcomeSocket;
-	
+
 	private long connections;
 	private long serviceTime;
 	private DirectoryWatcher watcher;
 	private WebServer window;
-	
+
 	private Map<String, IPlugin> plugins;
 	private Map<String, IRequestHandler> requestMap;
-	private Queue<ConnectionHandler> handlers;
+	private ArrayList<String> blackListedIPs;
+	private HashMap<String, Integer> ipOccurrences;
+
 	/**
 	 * @param rootDirectory
 	 * @param port
@@ -79,26 +82,27 @@ public class Server implements Runnable {
 		this.requestMap.put(Protocol.POST, new PostRequestHandler());
 		this.requestMap.put(Protocol.PUT, new PutRequestHandler());
 		this.requestMap.put(Protocol.DELETE, new DeleteRequestHandler());
-		this.handlers  = new LinkedList<ConnectionHandler>();
+		this.blackListedIPs = new ArrayList<String>();
+		this.ipOccurrences = new HashMap<String, Integer>();
 		this.watcher = new DirectoryWatcher(this);
 		Thread t = new Thread(this.watcher);
 		t.start();
 		initPlugins();
 	}
-	
+
 	public IPlugin getPlugin(String URI) {
-		try{
+		try {
 			return plugins.get(URI);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
-	
+
 	public IRequestHandler getRequestHandler(String method) {
-		try{
+		try {
 			return requestMap.get(method);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
@@ -113,7 +117,6 @@ public class Server implements Runnable {
 		return rootDirectory;
 	}
 
-
 	/**
 	 * Gets the port number for this web server.
 	 * 
@@ -122,34 +125,34 @@ public class Server implements Runnable {
 	public int getPort() {
 		return port;
 	}
-	
+
 	/**
-	 * Returns connections serviced per second. 
-	 * Synchronized to be used in threaded environment.
+	 * Returns connections serviced per second. Synchronized to be used in
+	 * threaded environment.
 	 * 
 	 * @return
 	 */
 	public synchronized double getServiceRate() {
-		if(this.serviceTime == 0)
+		if (this.serviceTime == 0)
 			return Long.MIN_VALUE;
-		double rate = this.connections/(double)this.serviceTime;
+		double rate = this.connections / (double) this.serviceTime;
 		rate = rate * 1000;
 		return rate;
 	}
-	
+
 	/**
-	 * Increments number of connection by the supplied value.
-	 * Synchronized to be used in threaded environment.
+	 * Increments number of connection by the supplied value. Synchronized to be
+	 * used in threaded environment.
 	 * 
 	 * @param value
 	 */
 	public synchronized void incrementConnections(long value) {
 		this.connections += value;
 	}
-	
+
 	/**
-	 * Increments the service time by the supplied value.
-	 * Synchronized to be used in threaded environment.
+	 * Increments the service time by the supplied value. Synchronized to be
+	 * used in threaded environment.
 	 * 
 	 * @param value
 	 */
@@ -158,75 +161,89 @@ public class Server implements Runnable {
 	}
 
 	/**
-	 * The entry method for the main server thread that accepts incoming
-	 * TCP connection request and creates a {@link ConnectionHandler} for
-	 * the request.
+	 * The entry method for the main server thread that accepts incoming TCP
+	 * connection request and creates a {@link ConnectionHandler} for the
+	 * request.
 	 */
 	public void run() {
 		try {
 			this.welcomeSocket = new ServerSocket(port);
-			
+
 			// Now keep welcoming new connections until stop flag is set to true
-			while(true) {
+			while (true) {
 				// Listen for incoming socket connection
 				// This method block until somebody makes a request
 				Socket connectionSocket = this.welcomeSocket.accept();
-				
+
 				// Come out of the loop if the stop flag is set
-				if(this.stop)
+				if (this.stop)
 					break;
+
+				// Create a handler for this incoming connection and start the
+				// handler in a new thread
+				String ipAddress = connectionSocket.getInetAddress().toString();
+				addIPAddress(ipAddress);
 				
-				// Create a handler for this incoming connection and start the handler in a new thread
-//				ConnectionHandler handler = new ConnectionHandler(this, connectionSocket);
-//				new Thread(handler).start();
-				this.handlers.add(new ConnectionHandler(this,connectionSocket));
-				new Thread(this.handlers.poll()).start();
+				if (!isBlackListed(ipAddress)) {
+					 ConnectionHandler handler = new ConnectionHandler(this,
+							 connectionSocket);
+							 new Thread(handler).start();
+				}
 			}
 			this.welcomeSocket.close();
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			window.showSocketException(e);
 		}
 	}
-	
+
+	/**
+	 * @param ipAddress
+	 */
+	private void addIPAddress(String ipAddress) {
+		//TODO
+		
+	}
+
 	/**
 	 * Stops the server from listening further.
 	 */
 	public synchronized void stop() {
-		if(this.stop)
+		if (this.stop)
 			return;
-		
+
 		// Set the stop flag to be true
 		this.stop = true;
 		try {
-			// This will force welcomeSocket to come out of the blocked accept() method 
+			// This will force welcomeSocket to come out of the blocked accept()
+			// method
 			// in the main loop of the start() method
 			Socket socket = new Socket(InetAddress.getLocalHost(), port);
-			
+
 			// We do not have any other job for this socket so just close it
 			socket.close();
+		} catch (Exception e) {
 		}
-		catch(Exception e){}
 	}
-	
+
 	/**
 	 * Checks if the server is stopeed or not.
+	 * 
 	 * @return
 	 */
 	public boolean isStoped() {
-		if(this.welcomeSocket != null)
+		if (this.welcomeSocket != null)
 			return this.welcomeSocket.isClosed();
 		return true;
 	}
-	
-	public void addPlugin(String s){
-		JarLoader loader = new JarLoader("./plugins/"+s);
-		String newString = s.substring(0, s.length()-4);
+
+	public void addPlugin(String s) {
+		JarLoader loader = new JarLoader("./plugins/" + s);
+		String newString = s.substring(0, s.length() - 4);
 		Class clazz;
 		try {
-			clazz = loader.loadClass(newString,true);
+			clazz = loader.loadClass(newString, true);
 			Object o = clazz.newInstance();
-			if(o instanceof IPlugin){
+			if (o instanceof IPlugin) {
 				IPlugin pluginClass = (IPlugin) o;
 				this.plugins.put(s.replace(".jar", ""), pluginClass);
 			}
@@ -234,25 +251,26 @@ public class Server implements Runnable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void removePlugin(String filename) {
-		//TODO: do something???
+		// TODO: do something???
 	}
-	
-	private void initPlugins(){
-		File pluginDir = new File("./plugins/"); 
+
+	private void initPlugins() {
+		File pluginDir = new File("./plugins/");
 		File[] plugins = pluginDir.listFiles();
-		for (File plugin : plugins){
+		for (File plugin : plugins) {
 			System.out.println("Trying to add " + plugin.getName());
 			addPlugin(plugin.getName());
 			System.out.println("Added " + plugin.getName());
 		}
 	}
-	
-	public Queue<ConnectionHandler> getHandlers(){
-		return this.handlers;
+
+	public void addBlackListedIP(String ip) {
+		this.blackListedIPs.add(ip);
 	}
-	public void addHandler(ConnectionHandler handlers){
-		this.handlers.add(handlers);
+
+	public boolean isBlackListed(String ip) {
+		return this.blackListedIPs.contains(ip);
 	}
 }
