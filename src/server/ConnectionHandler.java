@@ -176,6 +176,6 @@ public class ConnectionHandler implements Runnable {
 	}
 	
 	public void throttle() {
-		this.socket.setPerformancePreferences(-100, -100, 100);
+		this.socket.setPerformancePreferences(-0, 0, 10);
 	}
 }
