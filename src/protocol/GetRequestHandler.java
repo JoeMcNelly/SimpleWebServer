@@ -43,7 +43,7 @@ public class GetRequestHandler implements IRequestHandler {
 	public HttpResponse handleRequest(HttpRequest request, String rootDir) {
 		
 		HttpResponse response = null;
-		System.out.println("http://i.imgur.com/TZcEc5V.gifv");
+		//System.out.println("http://i.imgur.com/TZcEc5V.gifv");
 		// TODO Auto-generated method stub
 		String uri = request.getUri();
 		// Get root directory path from server
