@@ -205,12 +205,14 @@ public class Server implements Runnable {
 						this.waitingConnections.add(connectionSocket);
 						System.out.println("Connection added to queue");
 					}else {
+						System.out.println(throttledIPs.size());
 						this.waitingConnections.add(connectionSocket);
 						System.out.println("throttled connection added");
 						this.idler.throttleConnections(ipAddress);
 					}
 				} else {
 					System.out.println("blackIp");
+					connectionSocket.close();
 				}
 			}
 			this.welcomeSocket.close();
