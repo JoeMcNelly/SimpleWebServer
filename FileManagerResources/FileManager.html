@@ -23,22 +23,53 @@
 </div>
 <br>
 <div id="buttons">
-	<button type="button">Get File</button>
-	<button type="button">Delete</button>
-	<button type="button">Create New</button>
-	<button type="button">Append</button>
+	<button type="button" onclick="getFile">Get File</button>
+	<button type="button" onclick="deleteFile">Delete</button>
+	<button type="button" onclick="createFile">Create New</button>
+	<button type="button" onclick="appendToFile">Append</button>
 	<button type="button" onclick="getAllFiles()">Get All Files</button>
 </div>
 
 <script>
-function loadDoc() {
+function getFile() {
+  	var xhttp = new XMLHttpRequest();
+  	xhttp.onreadystatechange = function() {
+    	if (xhttp.readyState == 4 && xhttp.status == 200) {
+      		document.getElementById("demo").innerHTML = xhttp.responseText;
+    	}
+  	}
+  	xhttp.open("GET", "getAllFiles", true);
+  	xhttp.send();
+}
+
+function createFile() {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (xhttp.readyState == 4 && xhttp.status == 200) {
       document.getElementById("demo").innerHTML = xhttp.responseText;
     }
   }
-  xhttp.open("GET", "ajaxHelloWorld", true);
+  xhttp.open("GET", "getAllFiles", true);
+  xhttp.send();
+}
+function deleteFile() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+      document.getElementById("demo").innerHTML = xhttp.responseText;
+    }
+  }
+  xhttp.open("GET", "getAllFiles", true);
+  xhttp.send();
+}
+function appendToFile() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+      document.getElementById("demo").innerHTML = xhttp.responseText;
+    }
+  }
+  xhttp.open("GET", "getAllFiles", true);
   xhttp.send();
 }
 function getAllFiles() {
