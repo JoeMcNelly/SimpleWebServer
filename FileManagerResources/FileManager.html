@@ -15,10 +15,10 @@
 <div id="fileForum">
 	<form>
 	  File Name:<br>
-	  	<input id="createFileName" type="text" name="firstname">
+	  	<input id="fileName" type="text">
 	  <br>
 	  Body:<br>
-	  	<input id="createBody" type="text" name="lastname">
+	  	<input id="body" type="text">
 	</form>
 </div>
 <br>
@@ -32,6 +32,7 @@
 
 <script>
 function getFile() {
+	console.log(document.getElementById("fileName").text);
   	var xhttp = new XMLHttpRequest();
   	xhttp.onreadystatechange = function() {
     	if (xhttp.readyState == 4 && xhttp.status == 200) {
