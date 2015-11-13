@@ -46,15 +46,14 @@ function getFile() {
 function createFile() {
 	var fileName = document.getElementById("fileName").value;
 	var body = document.getElementById("body").value;
-	var json = convertToJson(fileName,body);
   	var xhttp = new XMLHttpRequest();
   	xhttp.onreadystatechange = function() {
     	if (xhttp.readyState == 4 && xhttp.status == 200) {
      		document.getElementById("demo").innerHTML = xhttp.responseText;
     	}
   	}
-  	xhttp.open("POST", "createNew", true);
-  	xhttp.send();
+  	xhttp.open("PUT", "createNew/" + fileName, true);
+  	xhttp.send(JSON.stringify({body:body}));
 }
 function deleteFile() {
 	var fileName = document.getElementById("fileName").value;
@@ -70,15 +69,14 @@ function deleteFile() {
 function appendToFile() {
 	var fileName = document.getElementById("fileName").value;
 	var body = document.getElementById("body").value;
-	var json = convertToJson(fileName,body);
 	var xhttp = new XMLHttpRequest();
   	xhttp.onreadystatechange = function() {
     	if (xhttp.readyState == 4 && xhttp.status == 200) {
       		document.getElementById("demo").innerHTML = xhttp.responseText;
     	}
   	}
-  	xhttp.open("PUT", "appendToFile", true);
-  	xhttp.send();
+  	xhttp.open("POST", "appendToFile/" + fileName, true);
+  	xhttp.send(JSON.stringify({body:body}));
 }
 function getAllFiles() {
   	var xhttp = new XMLHttpRequest();
@@ -91,15 +89,6 @@ function getAllFiles() {
   	xhttp.send();
 }
 
-function convertToJson(fileName, body) {
-	var json = [];
-	var file = {
-		"fileName": fileName,
-		"body": body
-	};
-	json.push(file);
-	return json;
-}	
 
 </script>
 
