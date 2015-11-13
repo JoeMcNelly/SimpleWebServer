@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<div id="demo"> <h1>File Manager</h1></div>
+<style>
+#buttons { 
+     display: inline-block;
+}
+#fileFourm { 
+     display: inline-block;
+}
+</style>
+
+<div id="fileForum">
+	<form>
+	  File Name:<br>
+	  	<input id="createFileName" type="text" name="firstname">
+	  <br>
+	  Body:<br>
+	  	<input id="createBody" type="text" name="lastname">
+	</form>
+</div>
+<br>
+<div id="buttons">
+	<button type="button">Get File</button>
+	<button type="button">Delete</button>
+	<button type="button">Create New</button>
+	<button type="button">Append</button>
+	<button type="button" onclick="getAllFiles()">Get All Files</button>
+</div>
+
+<script>
+function loadDoc() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+      document.getElementById("demo").innerHTML = xhttp.responseText;
+    }
+  }
+  xhttp.open("GET", "ajaxHelloWorld", true);
+  xhttp.send();
+}
+function getAllFiles() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+      document.getElementById("demo").innerHTML = xhttp.responseText;
+    }
+  }
+  xhttp.open("GET", "getAllFiles", true);
+  xhttp.send();
+}
+</script>
+
+
+</body>
+</html>
