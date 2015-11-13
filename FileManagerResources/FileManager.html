@@ -33,6 +33,7 @@
 <script>
 function getFile() {
 	var fileName = document.getElementById("fileName").value;
+	var json = convertToJson(fileName,body);
   	var xhttp = new XMLHttpRequest();
   	xhttp.onreadystatechange = function() {
     	if (xhttp.readyState == 4 && xhttp.status == 200) {
@@ -46,36 +47,39 @@ function getFile() {
 function createFile() {
 	var fileName = document.getElementById("fileName").value;
 	var body = document.getElementById("body").value;
+	var json = convertToJson(fileName,body);
   	var xhttp = new XMLHttpRequest();
   	xhttp.onreadystatechange = function() {
     	if (xhttp.readyState == 4 && xhttp.status == 200) {
      		document.getElementById("demo").innerHTML = xhttp.responseText;
     	}
   	}
-  	xhttp.open("GET", "createNew", true);
+  	xhttp.open("POST", "createNew", true);
   	xhttp.send();
 }
 function deleteFile() {
 	var fileName = document.getElementById("fileName").value;
+	var json = convertToJson(fileName,body);
 	var xhttp = new XMLHttpRequest();
   	xhttp.onreadystatechange = function() {
     	if (xhttp.readyState == 4 && xhttp.status == 200) {
       		document.getElementById("demo").innerHTML = xhttp.responseText;
     	}
   	}
-  	xhttp.open("GET", "delete", true);
+  	xhttp.open("DELETE", "delete", true);
   	xhttp.send();
 }
 function appendToFile() {
 	var fileName = document.getElementById("fileName").value;
 	var body = document.getElementById("body").value;
+	var json = convertToJson(fileName,body);
 	var xhttp = new XMLHttpRequest();
   	xhttp.onreadystatechange = function() {
     	if (xhttp.readyState == 4 && xhttp.status == 200) {
       		document.getElementById("demo").innerHTML = xhttp.responseText;
     	}
   	}
-  	xhttp.open("GET", "appendToFile", true);
+  	xhttp.open("PUT", "appendToFile", true);
   	xhttp.send();
 }
 function getAllFiles() {
@@ -88,6 +92,17 @@ function getAllFiles() {
   	xhttp.open("GET", "getAllFiles", true);
   	xhttp.send();
 }
+
+function convertToJson(fileName, body) {
+	var json = [];
+	var file = {
+		"fileName": fileName,
+		"body": body
+	};
+	json.push(file);
+	return json;
+}	
+
 </script>
 
 
