@@ -33,14 +33,13 @@
 <script>
 function getFile() {
 	var fileName = document.getElementById("fileName").value;
-	var json = convertToJson(fileName,body);
   	var xhttp = new XMLHttpRequest();
   	xhttp.onreadystatechange = function() {
     	if (xhttp.readyState == 4 && xhttp.status == 200) {
       		document.getElementById("demo").innerHTML = xhttp.responseText;
     	}
   	}
-  	xhttp.open("GET", "file", true);
+  	xhttp.open("GET", "file/" + fileName, true);
   	xhttp.send();
 }
 
@@ -59,14 +58,13 @@ function createFile() {
 }
 function deleteFile() {
 	var fileName = document.getElementById("fileName").value;
-	var json = convertToJson(fileName,body);
 	var xhttp = new XMLHttpRequest();
   	xhttp.onreadystatechange = function() {
     	if (xhttp.readyState == 4 && xhttp.status == 200) {
       		document.getElementById("demo").innerHTML = xhttp.responseText;
     	}
   	}
-  	xhttp.open("DELETE", "delete", true);
+  	xhttp.open("DELETE", "delete/" + fileName, true);
   	xhttp.send();
 }
 function appendToFile() {
