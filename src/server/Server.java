@@ -199,7 +199,7 @@ public class Server implements Runnable {
 				// handler in a new thread
 				String ipAddress = connectionSocket.getInetAddress().toString();
 				addIPAddress(ipAddress);
-				System.out.println(this.getRunningConnections());
+				System.out.println(this.getServiceRate());
 				if (!isBlackListed(ipAddress)) {
 					if (!isThrottled(ipAddress)) {
 						this.waitingConnections.add(connectionSocket);
