@@ -72,14 +72,16 @@ public class Server implements Runnable {
 	private ArrayList<String> throttledIPs;
 	private HashMap<String, Integer> ipOccurrences;
 	public List<Socket> waitingConnections;
+	private Socket socket;
 
 	/**
 	 * @param rootDirectory
 	 * @param port
 	 */
-	public Server(String rootDirectory, int port, WebServer window) {
+	public Server(WebServer window, String rootDirectory ) {
 		this.rootDirectory = rootDirectory;
-		this.port = port;
+//		this.port = port;
+//		this.socket = socket;
 		this.stop = false;
 		this.connections = 0;
 		this.serviceTime = 0;
@@ -119,7 +121,9 @@ public class Server implements Runnable {
 			return null;
 		}
 	}
-
+	public void addSocket(Socket socket){
+		this.socket = socket;
+	}
 	/**
 	 * Gets the root directory for this web server.
 	 * 
@@ -184,17 +188,17 @@ public class Server implements Runnable {
 		t.start();
 
 		try {
-			this.welcomeSocket = new ServerSocket(port);
+//			this.welcomeSocket = this.socket;//new ServerSocket(port);
 
 			// Now keep welcoming new connections until stop flag is set to true
-			while (true) {
+//			while (true) {
 				// Listen for incoming socket connection
 				// This method block until somebody makes a request
-				Socket connectionSocket = this.welcomeSocket.accept();
-
+				Socket connectionSocket = this.socket;//this.welcomeSocket.accept();
+				
 				// Come out of the loop if the stop flag is set
-				if (this.stop)
-					break;
+//				if (this.stop)
+//					break;
 				// Create a handler for this incoming connection and start the
 				// handler in a new thread
 				String ipAddress = connectionSocket.getInetAddress().toString();
@@ -214,8 +218,8 @@ public class Server implements Runnable {
 					System.out.println("blackIp");
 					connectionSocket.close();
 				}
-			}
-			this.welcomeSocket.close();
+//			}
+//			this.welcomeSocket.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			window.showSocketException(e);
