@@ -2,7 +2,7 @@
 <html>
 <body>
 
-<div id="demo"> <h1>File Manager</h1></div>
+<div id="demo"> <h1>File Manager Application</h1></div>
 <style>
 #buttons { 
      display: inline-block;
@@ -23,16 +23,16 @@
 </div>
 <br>
 <div id="buttons">
-	<button type="button" onclick="getFile">Get File</button>
-	<button type="button" onclick="deleteFile">Delete</button>
-	<button type="button" onclick="createFile">Create New</button>
-	<button type="button" onclick="appendToFile">Append</button>
+	<button type="button" onclick="getFile()">Get File</button>
+	<button type="button" onclick="deleteFile()">Delete</button>
+	<button type="button" onclick="createFile()">Create New</button>
+	<button type="button" onclick="appendToFile()">Append</button>
 	<button type="button" onclick="getAllFiles()">Get All Files</button>
 </div>
 
 <script>
 function getFile() {
-	console.log(document.getElementById("fileName").text);
+	console.log("File Name: " + document.getElementById("fileName").text);
   	var xhttp = new XMLHttpRequest();
   	xhttp.onreadystatechange = function() {
     	if (xhttp.readyState == 4 && xhttp.status == 200) {
