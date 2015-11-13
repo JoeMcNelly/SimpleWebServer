@@ -75,7 +75,7 @@ function appendToFile() {
       		document.getElementById("demo").innerHTML = xhttp.responseText;
     	}
   	}
-  	xhttp.open("POST", "appendToFile/" + fileName, true);
+  	xhttp.open("POST", "appendingToFile/" + fileName, true);
   	xhttp.send(JSON.stringify({body:body}));
 }
 function getAllFiles() {
