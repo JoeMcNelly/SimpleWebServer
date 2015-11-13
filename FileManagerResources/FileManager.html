@@ -32,56 +32,61 @@
 
 <script>
 function getFile() {
-	console.log("File Name: " + document.getElementById("fileName").text);
+	var fileName = document.getElementById("fileName").value;
   	var xhttp = new XMLHttpRequest();
   	xhttp.onreadystatechange = function() {
     	if (xhttp.readyState == 4 && xhttp.status == 200) {
       		document.getElementById("demo").innerHTML = xhttp.responseText;
     	}
   	}
-  	xhttp.open("GET", "getAllFiles", true);
+  	xhttp.open("GET", "file", true);
   	xhttp.send();
 }
 
 function createFile() {
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (xhttp.readyState == 4 && xhttp.status == 200) {
-      document.getElementById("demo").innerHTML = xhttp.responseText;
-    }
-  }
-  xhttp.open("GET", "getAllFiles", true);
-  xhttp.send();
+	var fileName = document.getElementById("fileName").value;
+	var body = document.getElementById("body").value;
+  	var xhttp = new XMLHttpRequest();
+  	xhttp.onreadystatechange = function() {
+    	if (xhttp.readyState == 4 && xhttp.status == 200) {
+     		document.getElementById("demo").innerHTML = xhttp.responseText;
+    	}
+  	}
+  	xhttp.open("GET", "createNew", true);
+  	xhttp.send();
 }
 function deleteFile() {
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (xhttp.readyState == 4 && xhttp.status == 200) {
-      document.getElementById("demo").innerHTML = xhttp.responseText;
-    }
-  }
-  xhttp.open("GET", "getAllFiles", true);
-  xhttp.send();
+	var fileName = document.getElementById("fileName").value;
+	var xhttp = new XMLHttpRequest();
+  	xhttp.onreadystatechange = function() {
+    	if (xhttp.readyState == 4 && xhttp.status == 200) {
+      		document.getElementById("demo").innerHTML = xhttp.responseText;
+    	}
+  	}
+  	xhttp.open("GET", "delete", true);
+  	xhttp.send();
 }
 function appendToFile() {
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (xhttp.readyState == 4 && xhttp.status == 200) {
-      document.getElementById("demo").innerHTML = xhttp.responseText;
-    }
-  }
-  xhttp.open("GET", "getAllFiles", true);
-  xhttp.send();
+	var fileName = document.getElementById("fileName").value;
+	var body = document.getElementById("body").value;
+	var xhttp = new XMLHttpRequest();
+  	xhttp.onreadystatechange = function() {
+    	if (xhttp.readyState == 4 && xhttp.status == 200) {
+      		document.getElementById("demo").innerHTML = xhttp.responseText;
+    	}
+  	}
+  	xhttp.open("GET", "appendToFile", true);
+  	xhttp.send();
 }
 function getAllFiles() {
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (xhttp.readyState == 4 && xhttp.status == 200) {
-      document.getElementById("demo").innerHTML = xhttp.responseText;
-    }
-  }
-  xhttp.open("GET", "getAllFiles", true);
-  xhttp.send();
+  	var xhttp = new XMLHttpRequest();
+  	xhttp.onreadystatechange = function() {
+    	if (xhttp.readyState == 4 && xhttp.status == 200) {
+      	document.getElementById("demo").innerHTML = xhttp.responseText;
+    	}
+  	}
+  	xhttp.open("GET", "getAllFiles", true);
+  	xhttp.send();
 }
 </script>
 
